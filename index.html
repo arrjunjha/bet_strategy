@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Equal Win Calculator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      color: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    .card {
+      width: 420px;
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    .mode-toggle {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .mode-toggle button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: white;
+      cursor: pointer;
+    }
+
+    .active {
+      background: #1e293b;
+      border-color: #3b82f6;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .col {
+      flex: 1;
+    }
+
+    label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: none;
+      background: #020617;
+      color: white;
+    }
+
+    .info-box {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 165, 0, 0.08);
+      border: 1px solid rgba(255,165,0,0.3);
+      font-size: 12px;
+      color: #fbbf24;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .results {
+      margin-top: 20px;
+    }
+
+    .bet-cards {
+      display: flex;
+      gap: 10px;
+    }
+
+    .bet-box {
+      flex: 1;
+      padding: 15px;
+      border-radius: 12px;
+      background: #020617;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .bet-box h3 {
+      margin: 0;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .bet-value {
+      font-size: 22px;
+      margin-top: 5px;
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .green { color: #22c55e; }
+    .red { color: #ef4444; }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <h1>Equal Win Calculator</h1>
+  <div class="subtitle">Guarantee equal returns on both outcomes</div>
+
+  <div class="mode-toggle">
+    <button id="modeMax" class="active" onclick="setMode('max')">🔥 ALL-IN MAX</button>
+    <button id="modeCustom" onclick="setMode('custom')">🎯 CUSTOM</button>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>Team 1</label>
+      <input id="team1" value="KKR">
+    </div>
+    <div class="col">
+      <label>Team 2</label>
+      <input id="team2" value="RCB">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <label>Odds</label>
+      <input id="odds1" value="1.8">
+    </div>
+    <div class="col">
+      <label>Odds</label>
+      <input id="odds2" value="2.0">
+    </div>
+  </div>
+
+  <div id="customInput" style="display:none;">
+    <label>Total Investment</label>
+    <input id="total" placeholder="Enter amount">
+  </div>
+
+  <div class="info-box">
+    Max bet per team is $100. System balances bets for equal payout.
+  </div>
+
+  <button class="btn-main" onclick="calculate()">CALCULATE</button>
+
+  <div class="results">
+
+    <div class="bet-cards">
+      <div class="bet-box">
+        <h3 id="label1">TEAM 1 BET</h3>
+        <div class="bet-value" id="bet1">$0</div>
+      </div>
+
+      <div class="bet-box">
+        <h3 id="label2">TEAM 2 BET</h3>
+        <div class="bet-value" id="bet2">$0</div>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div id="invested">$0</div>
+      <div id="return" class="green">$0</div>
+      <div id="profit" class="red">$0</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+let mode = "max";
+
+function setMode(m) {
+  mode = m;
+  document.getElementById("modeMax").classList.toggle("active", m==="max");
+  document.getElementById("modeCustom").classList.toggle("active", m==="custom");
+
+  document.getElementById("customInput").style.display = m==="custom" ? "block" : "none";
+}
+
+function calculate() {
+  const o1 = parseFloat(document.getElementById("odds1").value);
+  const o2 = parseFloat(document.getElementById("odds2").value);
+
+  let x, y;
+
+  if (mode === "max") {
+    const MAX = 100;
+
+    let x1 = MAX;
+    let y1 = (o1/o2)*x1;
+
+    let y2 = MAX;
+    let x2 = (o2/o1)*y2;
+
+    if (y1 <= MAX) {
+      x = x1; y = y1;
+    } else {
+      x = x2; y = y2;
+    }
+
+  } else {
+    const T = parseFloat(document.getElementById("total").value);
+    x = T / (1 + (o1/o2));
+    y = T - x;
+  }
+
+  const total = x + y;
+  const payout = o1 * x;
+  const profit = payout - total;
+
+  document.getElementById("bet1").innerText = `$${x.toFixed(2)}`;
+  document.getElementById("bet2").innerText = `$${y.toFixed(2)}`;
+
+  document.getElementById("invested").innerText = `Invested: $${total.toFixed(2)}`;
+  document.getElementById("return").innerText = `Return: $${payout.toFixed(2)}`;
+  document.getElementById("profit").innerText = `P/L: $${profit.toFixed(2)}`;
+}
+
+</script>
+
+</body>
+</html>

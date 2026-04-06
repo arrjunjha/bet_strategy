@@ -1,273 +1,448 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Equal Win Calculator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL Equal Win Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: radial-gradient(circle at top, #0f172a, #020617);
-      color: #e2e8f0;
-      display: flex;
-      justify-content: center;
-      padding: 30px;
-    }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent1: #f5a623;
+    --accent2: #e8445a;
+    --text: #e8e8f0;
+    --muted: #5a5a7a;
+    --green: #3ddc84;
+    --purple: #7c6fff;
+  }
 
-    .card {
-      width: 420px;
-      background: rgba(15, 23, 42, 0.7);
-      border-radius: 20px;
-      padding: 24px;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      backdrop-filter: blur(10px);
-    }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
 
-    h1 {
-      margin: 0;
-      font-size: 28px;
-    }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
 
-    .subtitle {
-      font-size: 13px;
-      color: #94a3b8;
-      margin-bottom: 20px;
-    }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    width: 100%;
+    max-width: 540px;
+    position: relative;
+    overflow: hidden;
+  }
 
-    .mode-toggle {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  }
 
-    .mode-toggle button {
-      flex: 1;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: transparent;
-      color: white;
-      cursor: pointer;
-    }
+  .header { margin-bottom: 28px; }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 40%, var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { margin-top: 8px; color: var(--muted); font-size: 13px; font-weight: 300; }
 
-    .active {
-      background: #1e293b;
-      border-color: #3b82f6;
-    }
+  .teams-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .team-badge { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-1 { background: var(--accent1); box-shadow: 0 0 8px var(--accent1); }
+  .dot-2 { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
 
-    .row {
-      display: flex;
-      gap: 10px;
-    }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 17px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -moz-appearance: textfield;
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .field-kkr input:focus { border-color: var(--accent1); box-shadow: 0 0 0 3px rgba(245,166,35,0.1); }
+  .field-rcb input:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(232,68,90,0.1); }
+  .field-invest input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,111,255,0.1); }
 
-    .col {
-      flex: 1;
-    }
+  .input-wrap { position: relative; }
+  .suffix {
+    position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--muted);
+    pointer-events: none;
+  }
 
-    label {
-      font-size: 12px;
-      color: #94a3b8;
-    }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 8px;
-      border: none;
-      background: #020617;
-      color: white;
-    }
+  .mode-field { margin-bottom: 16px; }
+  .mode-field label { display: block; margin-bottom: 7px; }
 
-    .info-box {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      background: rgba(255, 165, 0, 0.08);
-      border: 1px solid rgba(255,165,0,0.3);
-      font-size: 12px;
-      color: #fbbf24;
-    }
+  .custom-select-wrap { position: relative; }
 
-    .btn-main {
-      width: 100%;
-      padding: 12px;
-      margin-top: 15px;
-      border-radius: 10px;
-      border: none;
-      background: linear-gradient(90deg, #3b82f6, #2563eb);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
+  select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 40px 12px 14px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  select:focus { border-color: var(--accent1); box-shadow: 0 0 0 3px rgba(245,166,35,0.1); }
 
-    .results {
-      margin-top: 20px;
-    }
+  .select-arrow {
+    position: absolute;
+    right: 14px; top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--muted);
+    font-size: 12px;
+  }
 
-    .bet-cards {
-      display: flex;
-      gap: 10px;
-    }
+  .dynamic-section { animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    .bet-box {
-      flex: 1;
-      padding: 15px;
-      border-radius: 12px;
-      background: #020617;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
+  .allin-info {
+    background: rgba(245,166,35,0.06);
+    border: 1px solid rgba(245,166,35,0.15);
+    border-radius: 12px;
+    padding: 13px 15px;
+    margin-bottom: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: #c8a060;
+    line-height: 1.6;
+  }
 
-    .bet-box h3 {
-      margin: 0;
-      font-size: 12px;
-      color: #94a3b8;
-    }
+  .invest-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: end;
+  }
 
-    .bet-value {
-      font-size: 22px;
-      margin-top: 5px;
-    }
+  .btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-allin { background: linear-gradient(135deg, var(--accent1), var(--accent2)); }
+  .btn-allin:hover { box-shadow: 0 6px 24px rgba(245,166,35,0.3); }
+  .btn-custom { background: linear-gradient(135deg, var(--purple), #a78bfa); }
+  .btn-custom:hover { box-shadow: 0 6px 24px rgba(124,111,255,0.3); }
 
-    .summary {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 15px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
+  .results { margin-top: 22px; display: none; animation: fadeIn 0.3s ease; }
+  .results.show { display: block; }
 
-    .green { color: #22c55e; }
-    .red { color: #ef4444; }
-  </style>
+  .result-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .result-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+  .result-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .result-card.t1 { border-top: 2px solid var(--accent1); }
+  .result-card.t2 { border-top: 2px solid var(--accent2); }
+
+  .rc-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
+  .rc-bet { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.04em; }
+  .rc-bet.t1 { color: var(--accent1); }
+  .rc-bet.t2 { color: var(--accent2); }
+  .rc-payout { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .rc-payout span { color: var(--green); }
+
+  .summary-row {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sum-item { text-align: center; }
+  .sum-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .sum-value { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.04em; }
+  .sum-value.invest-col { color: var(--purple); }
+  .sum-value.payout { color: var(--green); }
+  .sum-value.loss { color: var(--accent2); }
+  .sum-value.profit { color: var(--green); }
+  .sep { width: 1px; height: 34px; background: var(--border); }
+
+  .notice {
+    margin-top: 11px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    line-height: 1.6;
+    display: none;
+  }
+  .notice.show { display: block; }
+  .notice.warn { background: rgba(232,68,90,0.08); border: 1px solid rgba(232,68,90,0.2); color: #e8a0a8; }
+  .notice.good { background: rgba(61,220,132,0.08); border: 1px solid rgba(61,220,132,0.2); color: #80e8b0; }
+  .notice.info { background: rgba(124,111,255,0.08); border: 1px solid rgba(124,111,255,0.2); color: #b0a8ff; }
+</style>
 </head>
-
 <body>
-
 <div class="card">
-
-  <h1>Equal Win Calculator</h1>
-  <div class="subtitle">Guarantee equal returns on both outcomes</div>
-
-  <div class="mode-toggle">
-    <button id="modeMax" class="active" onclick="setMode('max')">🔥 ALL-IN MAX</button>
-    <button id="modeCustom" onclick="setMode('custom')">🎯 CUSTOM</button>
+  <div class="header">
+    <div class="eyebrow">🏏 IPL Betting</div>
+    <h1>Equal Win<br>Calculator</h1>
+    <p class="subtitle">Guarantee equal returns on both outcomes — pick your mode</p>
   </div>
 
-  <div class="row">
-    <div class="col">
-      <label>Team 1</label>
-      <input id="team1" value="KKR">
+  <div class="teams-row">
+    <div class="field field-kkr">
+      <div class="team-badge"><div class="dot dot-1"></div></div>
+      <label>Team 1 Name</label>
+      <input type="text" id="name1" value="KKR" />
+      <label style="margin-top:6px">Odds</label>
+      <input type="number" id="odd1" value="1.8" step="0.01" min="1.01" />
     </div>
-    <div class="col">
-      <label>Team 2</label>
-      <input id="team2" value="RCB">
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col">
-      <label>Odds</label>
-      <input id="odds1" value="1.8">
-    </div>
-    <div class="col">
-      <label>Odds</label>
-      <input id="odds2" value="2.0">
+    <div class="field field-rcb">
+      <div class="team-badge"><div class="dot dot-2"></div></div>
+      <label>Team 2 Name</label>
+      <input type="text" id="name2" value="RCB" />
+      <label style="margin-top:6px">Odds</label>
+      <input type="number" id="odd2" value="2.0" step="0.01" min="1.01" />
     </div>
   </div>
 
-  <div id="customInput" style="display:none;">
-    <label>Total Investment</label>
-    <input id="total" placeholder="Enter amount">
+  <hr class="divider">
+
+  <div class="mode-field">
+    <label>Betting Mode</label>
+    <div class="custom-select-wrap">
+      <select id="modeSelect" onchange="onModeChange()">
+        <option value="allin">🔥 All-In Max — Auto-calculate max investment</option>
+        <option value="custom">🎯 Custom Amount — Enter your own total</option>
+      </select>
+      <span class="select-arrow">▾</span>
+    </div>
   </div>
 
-  <div class="info-box">
-    Max bet per team is $100. System balances bets for equal payout.
-  </div>
+  <div id="dynamic-section" class="dynamic-section"></div>
 
-  <button class="btn-main" onclick="calculate()">CALCULATE</button>
-
-  <div class="results">
-
-    <div class="bet-cards">
-      <div class="bet-box">
-        <h3 id="label1">TEAM 1 BET</h3>
-        <div class="bet-value" id="bet1">$0</div>
+  <div class="results" id="results">
+    <div class="result-header" id="result-header">// Optimal Split</div>
+    <div class="result-cards">
+      <div class="result-card t1">
+        <div class="rc-label" id="label1">Team 1 Bet</div>
+        <div class="rc-bet t1" id="bet1">—</div>
+        <div class="rc-payout" id="pay1">Payout: <span>—</span></div>
       </div>
-
-      <div class="bet-box">
-        <h3 id="label2">TEAM 2 BET</h3>
-        <div class="bet-value" id="bet2">$0</div>
+      <div class="result-card t2">
+        <div class="rc-label" id="label2">Team 2 Bet</div>
+        <div class="rc-bet t2" id="bet2">—</div>
+        <div class="rc-payout" id="pay2">Payout: <span>—</span></div>
       </div>
     </div>
-
-    <div class="summary">
-      <div id="invested">$0</div>
-      <div id="return" class="green">$0</div>
-      <div id="profit" class="red">$0</div>
+    <div class="summary-row">
+      <div class="sum-item">
+        <div class="sum-label">Invested</div>
+        <div class="sum-value invest-col" id="s-invest">—</div>
+      </div>
+      <div class="sep"></div>
+      <div class="sum-item">
+        <div class="sum-label">You Get Back</div>
+        <div class="sum-value payout" id="s-payout">—</div>
+      </div>
+      <div class="sep"></div>
+      <div class="sum-item">
+        <div class="sum-label">Net P&L</div>
+        <div class="sum-value" id="s-pl">—</div>
+      </div>
     </div>
-
+    <div class="notice" id="notice"></div>
   </div>
-
 </div>
 
 <script>
+  function onModeChange() {
+    const mode = document.getElementById('modeSelect').value;
+    const sec = document.getElementById('dynamic-section');
+    document.getElementById('results').classList.remove('show');
 
-let mode = "max";
-
-function setMode(m) {
-  mode = m;
-  document.getElementById("modeMax").classList.toggle("active", m==="max");
-  document.getElementById("modeCustom").classList.toggle("active", m==="custom");
-
-  document.getElementById("customInput").style.display = m==="custom" ? "block" : "none";
-}
-
-function calculate() {
-  const o1 = parseFloat(document.getElementById("odds1").value);
-  const o2 = parseFloat(document.getElementById("odds2").value);
-
-  let x, y;
-
-  if (mode === "max") {
-    const MAX = 100;
-
-    let x1 = MAX;
-    let y1 = (o1/o2)*x1;
-
-    let y2 = MAX;
-    let x2 = (o2/o1)*y2;
-
-    if (y1 <= MAX) {
-      x = x1; y = y1;
+    if (mode === 'allin') {
+      sec.innerHTML = `
+        <div class="allin-info">
+          🔥 <strong>All-In Mode</strong> — Max $100 per team. The lower-odds team is capped at $100; the other is scaled for equal payouts. Total is auto-calculated.
+        </div>
+        <button class="btn btn-allin" onclick="calcAllin()">Go All-In →</button>
+      `;
     } else {
-      x = x2; y = y2;
+      sec.innerHTML = `
+        <div class="invest-row">
+          <div class="field field-invest">
+            <label>Total Investment ($)</label>
+            <div class="input-wrap">
+              <input type="number" id="invest" value="140" step="1" min="2" />
+              <span class="suffix">USD</span>
+            </div>
+          </div>
+          <button class="btn btn-custom" onclick="calcCustom()">Calculate →</button>
+        </div>
+      `;
     }
-
-  } else {
-    const T = parseFloat(document.getElementById("total").value);
-    x = T / (1 + (o1/o2));
-    y = T - x;
   }
 
-  const total = x + y;
-  const payout = o1 * x;
-  const profit = payout - total;
+  function renderResults(b1, b2, o1, o2, n1, n2, headerText) {
+    const payout = o1 * b1;
+    const total = b1 + b2;
+    const pl = payout - total;
+    const isArb = (1/o1 + 1/o2) < 1;
 
-  document.getElementById("bet1").innerText = `$${x.toFixed(2)}`;
-  document.getElementById("bet2").innerText = `$${y.toFixed(2)}`;
+    document.getElementById('result-header').textContent = headerText;
+    document.getElementById('label1').textContent = n1 + ' Bet';
+    document.getElementById('label2').textContent = n2 + ' Bet';
+    document.getElementById('bet1').textContent = '$' + b1.toFixed(2);
+    document.getElementById('bet2').textContent = '$' + b2.toFixed(2);
+    document.getElementById('pay1').innerHTML = 'Payout: <span>$' + (o1*b1).toFixed(2) + '</span>';
+    document.getElementById('pay2').innerHTML = 'Payout: <span>$' + (o2*b2).toFixed(2) + '</span>';
+    document.getElementById('s-invest').textContent = '$' + total.toFixed(2);
+    document.getElementById('s-payout').textContent = '$' + payout.toFixed(2);
 
-  document.getElementById("invested").innerText = `Invested: $${total.toFixed(2)}`;
-  document.getElementById("return").innerText = `Return: $${payout.toFixed(2)}`;
-  document.getElementById("profit").innerText = `P/L: $${profit.toFixed(2)}`;
-}
+    const plEl = document.getElementById('s-pl');
+    plEl.textContent = (pl >= 0 ? '+' : '') + '$' + pl.toFixed(2);
+    plEl.className = 'sum-value ' + (pl >= 0 ? 'profit' : 'loss');
 
+    const noticeEl = document.getElementById('notice');
+    const msgs = [];
+    let cls = 'info';
+
+    if (b1 > 100) msgs.push(`⚠ ${n1} bet $${b1.toFixed(2)} exceeds $100 limit.`);
+    if (b2 > 100) msgs.push(`⚠ ${n2} bet $${b2.toFixed(2)} exceeds $100 limit.`);
+
+    if (isArb) {
+      msgs.push(`✅ Arbitrage exists! Guaranteed profit: $${pl.toFixed(2)} no matter who wins.`);
+      cls = 'good';
+    } else {
+      msgs.push(`ℹ 1/${o1} + 1/${o2} = ${(1/o1+1/o2).toFixed(3)} > 1. Guaranteed loss: $${Math.abs(pl).toFixed(2)}.`);
+      cls = (b1 > 100 || b2 > 100) ? 'warn' : 'info';
+    }
+
+    noticeEl.innerHTML = msgs.join('<br>');
+    noticeEl.className = 'notice show ' + cls;
+    document.getElementById('results').classList.add('show');
+  }
+
+  function getInputs() {
+    return {
+      o1: parseFloat(document.getElementById('odd1').value),
+      o2: parseFloat(document.getElementById('odd2').value),
+      n1: document.getElementById('name1').value || 'Team 1',
+      n2: document.getElementById('name2').value || 'Team 2',
+    };
+  }
+
+  function calcAllin() {
+    const { o1, o2, n1, n2 } = getInputs();
+    if (!o1 || !o2 || o1 < 1 || o2 < 1) return;
+    let b1, b2;
+    if (o1 <= o2) { b1 = 100; b2 = (o1 * 100) / o2; }
+    else           { b2 = 100; b1 = (o2 * 100) / o1; }
+    renderResults(b1, b2, o1, o2, n1, n2, '// 🔥 Max All-In Split');
+  }
+
+  function calcCustom() {
+    const { o1, o2, n1, n2 } = getInputs();
+    const total = parseFloat(document.getElementById('invest').value);
+    if (!o1 || !o2 || !total || o1 < 1 || o2 < 1) return;
+    const b1 = total * o2 / (o1 + o2);
+    const b2 = total - b1;
+    renderResults(b1, b2, o1, o2, n1, n2, '// 🎯 Custom Investment Split');
+  }
+
+  // Init
+  onModeChange();
 </script>
-
 </body>
 </html>

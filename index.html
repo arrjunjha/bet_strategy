@@ -269,6 +269,138 @@
   .notice.warn { background: rgba(232,68,90,0.08); border: 1px solid rgba(232,68,90,0.2); color: #e8a0a8; }
   .notice.good { background: rgba(61,220,132,0.08); border: 1px solid rgba(61,220,132,0.2); color: #80e8b0; }
   .notice.info { background: rgba(124,111,255,0.08); border: 1px solid rgba(124,111,255,0.2); color: #b0a8ff; }
+
+  /* Feed */
+  .feed-wrap {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .feed-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .feed-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.04;
+    pointer-events: none;
+  }
+  .feed-card.feed-payout { border-left: 3px solid var(--green); }
+  .feed-card.feed-payout::before { background: var(--green); }
+  .feed-card.feed-multiple { border-left: 3px solid var(--accent1); }
+  .feed-card.feed-multiple::before { background: var(--accent1); }
+
+  .feed-icon {
+    font-size: 18px;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .feed-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .feed-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 0.03em;
+    line-height: 1;
+  }
+  .feed-value.green { color: var(--green); }
+  .feed-value.gold  { color: var(--accent1); }
+  .feed-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.5;
+  }
+  .feed-sub span { color: var(--text); }
+
+  /* Bonus Payout Card */
+  .bonus-card {
+    margin-top: 10px;
+    background: var(--bg);
+    border: 1px solid rgba(245,166,35,0.25);
+    border-radius: 14px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bonus-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(245,166,35,0.06), rgba(232,68,90,0.04));
+    pointer-events: none;
+  }
+  .bonus-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .bonus-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent1);
+  }
+  .bonus-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    background: rgba(245,166,35,0.12);
+    border: 1px solid rgba(245,166,35,0.2);
+    color: var(--accent1);
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .bonus-body {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .bonus-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .bonus-breakdown {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.9;
+    text-align: right;
+  }
+  .bonus-breakdown span { color: var(--text); }
+  .bonus-desc {
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+  .bonus-desc span { color: var(--accent1); }
 </style>
 </head>
 <body>
@@ -342,6 +474,40 @@
       </div>
     </div>
     <div class="notice" id="notice"></div>
+
+    <!-- Feed -->
+    <div class="feed-wrap">
+      <div class="feed-card feed-payout">
+        <span class="feed-icon">💰</span>
+        <div class="feed-label">You Get Back</div>
+        <div class="feed-value green" id="feed-payout">—</div>
+        <div class="feed-sub" id="feed-payout-sub">on any outcome</div>
+      </div>
+      <div class="feed-card feed-multiple">
+        <span class="feed-icon">📈</span>
+        <div class="feed-label">Return Multiple</div>
+        <div class="feed-value gold" id="feed-multiple">—</div>
+        <div class="feed-sub" id="feed-multiple-sub">times your investment</div>
+      </div>
+    </div>
+
+    <!-- Bonus Payout Card -->
+    <div class="bonus-card">
+      <div class="bonus-top">
+        <div class="bonus-title">🎯 Promotion Bonus — Six in 1st Over</div>
+        <div class="bonus-badge">Net Profit</div>
+      </div>
+      <div class="bonus-body">
+        <div class="bonus-amount" id="bonus-total">—</div>
+        <div class="bonus-breakdown" id="bonus-breakdown">
+          Team 1: <span>—</span><br>
+          Team 2: <span>—</span>
+        </div>
+      </div>
+      <div class="bonus-desc">
+        If the losing team hits a <span>six in the 1st over</span>, both bets pay out. Your net profit would be <span id="bonus-inline">—</span> after deducting your total investment.
+      </div>
+    </div>
   </div>
 </div>
 
@@ -412,6 +578,23 @@
     noticeEl.innerHTML = msgs.join('<br>');
     noticeEl.className = 'notice show ' + cls;
     document.getElementById('results').classList.add('show');
+
+    // Feed
+    const multiple = payout / total;
+    document.getElementById('feed-payout').textContent = '$' + payout.toFixed(2);
+    document.getElementById('feed-payout-sub').innerHTML = `guaranteed on <span>any outcome</span>`;
+    document.getElementById('feed-multiple').textContent = multiple.toFixed(2) + 'x';
+    document.getElementById('feed-multiple-sub').innerHTML = `you get back <span>${multiple.toFixed(2)} times</span> your money`;
+
+    // Bonus card — net profit if both pay out
+    const pay1 = o1 * b1;
+    const pay2 = o2 * b2;
+    const bonusTotal = pay1 + pay2;
+    const bonusNet = bonusTotal - total;
+    document.getElementById('bonus-total').textContent = (bonusNet >= 0 ? '+' : '') + '$' + bonusNet.toFixed(2);
+    document.getElementById('bonus-breakdown').innerHTML =
+      `${n1}: <span>$${pay1.toFixed(2)}</span><br>${n2}: <span>$${pay2.toFixed(2)}</span>`;
+    document.getElementById('bonus-inline').textContent = (bonusNet >= 0 ? '+' : '') + '$' + bonusNet.toFixed(2);
   }
 
   function getInputs() {
